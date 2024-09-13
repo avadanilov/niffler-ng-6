@@ -10,7 +10,7 @@ public class RegistrationPage {
   private final SelenideElement submitPasswordInput = $("#passwordSubmit");
   private final SelenideElement submitButton = $("button[type='submit']");
 
-  public MainPage login(String username, String password) {
+  public MainPage signUp(String username, String password) {
     usernameInput.setValue(username);
     passwordInput.setValue(password);
     submitPasswordInput.setValue(password);
