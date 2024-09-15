@@ -21,7 +21,7 @@ public class ProfilePage {
     private final SelenideElement archiveConfirmationDialog = $(".MuiDialog-container");
     private final SelenideElement closeButton = archiveConfirmationDialog.$(withText("Close"));
     private final SelenideElement archiveButton = archiveConfirmationDialog.$x(".//button[text()='Archive']");
-    private final SelenideElement unarchiveButton = archiveConfirmationDialog.$x(".//button[text()='Unrchive']");
+    private final SelenideElement unarchiveButton = archiveConfirmationDialog.$x(".//button[text()='Unarchive']");
     private final ElementsCollection categories = addNewCategoryInput.$$x(".//../../form/following-sibling::div");
     private final String categoryChipLocator = ".MuiChip-labelMedium";
 
@@ -66,6 +66,8 @@ public class ProfilePage {
     }
 
     public ProfilePage unarchiveCategory(String categoryName) {
+        if (!showArchivedCheckbox.isSelected())
+            showArchivedCheckbox.parent().click();
         SelenideElement category = getCategory(categoryName);
         category.$("[aria-label='Unarchive category']")
                 .click();

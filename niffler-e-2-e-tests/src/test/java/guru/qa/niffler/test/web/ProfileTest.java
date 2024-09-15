@@ -31,8 +31,24 @@ public class ProfileTest {
         mainPage.checkPageLoaded();
         ProfilePage profilePage = mainPage.openProfilePage();
         profilePage.archiveCategory(category.name());
-        assertCategoryInList(category.name(), !category.archived());
+        assertCategoryInList(category.name(), true);
     }
+
+    @Test
+    @Category(
+            username = "test",
+            archived = true
+    )
+    void activeCategoryShouldPresentInCategoriesList(CategoryJson category) {
+        MainPage mainPage =
+                Selenide.open(CFG.frontUrl(), LoginPage.class)
+                        .login(USERNAME, PASSWORD);
+        mainPage.checkPageLoaded();
+        ProfilePage profilePage = mainPage.openProfilePage();
+        profilePage.unarchiveCategory(category.name());
+        assertCategoryInList(category.name(), false);
+    }
+
 
     private static void assertCategoryInList(String categoryName, boolean archived) {
         SpendApiClient spendApiClient = new SpendApiClient();
@@ -42,14 +58,6 @@ public class ProfileTest {
         assertTrue(contains, "Для категории " + categoryName + " не установлено свойство archived = " + archived);
     }
 
-    @Test
-    @Category(
-            username = "test",
-            archived = true
-    )
-    void activeCategoryShouldPresentInCategoriesList() {
-
-    }
 
 
 }
