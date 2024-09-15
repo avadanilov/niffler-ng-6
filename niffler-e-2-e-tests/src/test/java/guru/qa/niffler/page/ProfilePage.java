@@ -8,8 +8,10 @@ import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selectors.withText;
 import static com.codeborne.selenide.Selenide.$;
+import static com.codeborne.selenide.Selenide.$x;
 
 public class ProfilePage {
+    private final SelenideElement pageHeader = $x("//h2[text()='Profile']");
     private final SelenideElement uploadNewPictureButton = $(".image__input-label");
     private final SelenideElement usernameInput = $("#username");
     private final SelenideElement nameInput = $("#name");
@@ -18,9 +20,9 @@ public class ProfilePage {
     private final SelenideElement addNewCategoryInput = $("#category");
     private final SelenideElement archiveConfirmationDialog = $(".MuiDialog-container");
     private final SelenideElement closeButton = archiveConfirmationDialog.$(withText("Close"));
-    private final SelenideElement archiveButton = archiveConfirmationDialog.$(withText("Archive"));
-    private final ElementsCollection categories = addNewCategoryInput.parent().$$(":scope ~ div");
-
+    private final SelenideElement archiveButton = archiveConfirmationDialog.$x(".//button[text()='Archive']");
+    private final SelenideElement unarchiveButton = archiveConfirmationDialog.$x(".//button[text()='Unrchive']");
+    private final ElementsCollection categories = addNewCategoryInput.$$x(".//../../form/following-sibling::div");
     private final String categoryChipLocator = ".MuiChip-labelMedium";
 
     private static void editCategoryInputField(String newCategoryName, SelenideElement category) {
@@ -62,5 +64,20 @@ public class ProfilePage {
         archiveButton.click();
         return this;
     }
+
+    public ProfilePage unarchiveCategory(String categoryName) {
+        SelenideElement category = getCategory(categoryName);
+        category.$("[aria-label='Unarchive category']")
+                .click();
+        archiveConfirmationDialog.should(visible);
+        unarchiveButton.click();
+        return this;
+    }
+
+    public ProfilePage checkPageLoaded() {
+        pageHeader.should(visible);
+        return this;
+    }
+
 
 }
