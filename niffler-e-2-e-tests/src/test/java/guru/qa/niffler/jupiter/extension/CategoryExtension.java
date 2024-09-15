@@ -15,7 +15,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
   private final SpendApiClient spendApiClient = new SpendApiClient();
 
   @Override
-  public void beforeEach(ExtensionContext context) throws Exception {
+  public void beforeEach(ExtensionContext context) {
     AnnotationSupport.findAnnotation(context.getRequiredTestMethod(), Category.class)
         .ifPresent(anno -> {
           CategoryJson category = new CategoryJson(
@@ -25,9 +25,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
                   anno.archived()
           );
           CategoryJson created = spendApiClient.addCategory(category);
-          context.getStore(NAMESPACE).put(
-              context.getUniqueId(), created
-          );
+
           if (anno.archived()) {
               CategoryJson archivedCategory = new CategoryJson(
                       created.id(),
@@ -37,6 +35,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
               );
               created = spendApiClient.updateCategory(archivedCategory);
           }
+          context.getStore(NAMESPACE).put(context.getUniqueId(), created);
         });
   }
 
@@ -51,7 +50,7 @@ public class CategoryExtension implements BeforeEachCallback, ParameterResolver,
   }
 
   @Override
-  public  void afterTestExecution(ExtensionContext context) throws Exception {
+  public  void afterTestExecution(ExtensionContext context) {
       CategoryJson category = context.getStore(NAMESPACE).get(context.getUniqueId(), CategoryJson.class);
       //архивируем категорию после теста
       if (!category.archived()) {
