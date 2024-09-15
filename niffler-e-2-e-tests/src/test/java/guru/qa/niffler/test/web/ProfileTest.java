@@ -58,6 +58,4 @@ public class ProfileTest {
         assertTrue(contains, "Для категории " + categoryName + " не установлено свойство archived = " + archived);
     }
 
-
-
 }
