@@ -22,8 +22,9 @@ public class LoginPage {
     }
 
     public void checkErrorMessageIsPresent(String messageText) {
-        errorLoginMessage.should(visible);
-        errorLoginMessage.should(text(messageText));
+        errorLoginMessage
+                .should(visible)
+                .should(text(messageText));
     }
 
     public void checkPageLoaded() {

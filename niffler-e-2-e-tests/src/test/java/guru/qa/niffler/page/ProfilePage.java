@@ -34,11 +34,7 @@ public class ProfilePage {
 
     private SelenideElement getCategory(String categoryName) {
         categories.shouldHave(sizeGreaterThan(0));
-        return categories.stream().filter(
-                        category -> category.$(categoryChipLocator).has(text(categoryName))
-                )
-                .findFirst()
-                .orElseThrow();
+        return categories.findBy(text(categoryName));
     }
 
     public ProfilePage editCategory(String categoryName, String newCategoryName) {
