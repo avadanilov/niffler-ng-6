@@ -45,23 +45,13 @@ public class UsersQueueExtension implements
             Optional<StaticUser> user = Optional.empty();
             StopWatch sw = StopWatch.createStarted();
             while (user.isEmpty() && sw.getTime(TimeUnit.SECONDS) < 30) {
-                user = switch (userType.value()) {
-                    case EMPTY -> Optional.ofNullable(EMPTY_USERS.poll());
-                    case WITH_FRIEND -> Optional.ofNullable(WITH_FRIEND_USERS.poll());
-                    case WITH_INCOME_REQUEST -> Optional.ofNullable(WITH_INCOME_REQUEST_USERS.poll());
-                    case WITH_OUTCOME_REQUEST -> Optional.ofNullable(WITH_OUTCOME_REQUEST_USERS.poll());
-                };
+                user = getUserByType(userType);
             }
             Allure.getLifecycle().updateTestCase(testCase ->
                     testCase.setStart(new Date().getTime())
             );
             user.ifPresentOrElse(
-                    u ->
-                            ((Map<UserType, StaticUser>) context.getStore(NAMESPACE)
-                                    .getOrComputeIfAbsent(
-                                            context.getUniqueId(),
-                                            key -> new HashMap<>()
-                                    )).put(userType, u),
+                    u -> addUserToContextMap(context, u, userType),
                     () -> {
                         throw new IllegalStateException("Can`t obtain user after 30s.");
                     }
@@ -71,20 +61,8 @@ public class UsersQueueExtension implements
 
     @Override
     public void afterTestExecution(ExtensionContext context) {
-        Map<UserType, StaticUser> map = context.getStore(NAMESPACE).get(
-                context.getUniqueId(),
-                Map.class
-        );
-        for (Map.Entry<UserType, StaticUser> entry : map.entrySet()) {
-            switch (entry.getKey().value()) {
-                case EMPTY -> EMPTY_USERS.add(entry.getValue());
-                case WITH_FRIEND -> WITH_FRIEND_USERS.add(entry.getValue());
-                case WITH_INCOME_REQUEST -> WITH_INCOME_REQUEST_USERS.add(entry.getValue());
-                case WITH_OUTCOME_REQUEST -> WITH_OUTCOME_REQUEST_USERS.add(entry.getValue());
-            }
-        }
+        returnUserToQueue(context);
     }
-
 
     @Override
     public boolean supportsParameter(ParameterContext parameterContext, ExtensionContext extensionContext) throws ParameterResolutionException {
@@ -102,6 +80,7 @@ public class UsersQueueExtension implements
     @Retention(RetentionPolicy.RUNTIME)
     public @interface UserType {
         Type value() default Type.EMPTY;
+
         enum Type {
             EMPTY, WITH_FRIEND, WITH_INCOME_REQUEST, WITH_OUTCOME_REQUEST
         }
@@ -112,6 +91,40 @@ public class UsersQueueExtension implements
             String password,
             String friend,
             String income,
-            String outcome)    {
+            String outcome) {
     }
+
+
+    private static StaticUser addUserToContextMap(ExtensionContext context, StaticUser u, UserType userType) {
+        return ((Map<UserType, StaticUser>) context.getStore(NAMESPACE)
+                .getOrComputeIfAbsent(
+                        context.getUniqueId(),
+                        key -> new HashMap<>()
+                )).put(userType, u);
+    }
+
+    private static Optional<StaticUser> getUserByType(UserType userType) {
+        return switch (userType.value()) {
+            case EMPTY -> Optional.ofNullable(EMPTY_USERS.poll());
+            case WITH_FRIEND -> Optional.ofNullable(WITH_FRIEND_USERS.poll());
+            case WITH_INCOME_REQUEST -> Optional.ofNullable(WITH_INCOME_REQUEST_USERS.poll());
+            case WITH_OUTCOME_REQUEST -> Optional.ofNullable(WITH_OUTCOME_REQUEST_USERS.poll());
+        };
+    }
+
+    private static void returnUserToQueue(ExtensionContext context) {
+        Map<UserType, StaticUser> map = context.getStore(NAMESPACE).get(
+                context.getUniqueId(),
+                Map.class
+        );
+        for (Map.Entry<UserType, StaticUser> entry : map.entrySet()) {
+            switch (entry.getKey().value()) {
+                case EMPTY -> EMPTY_USERS.add(entry.getValue());
+                case WITH_FRIEND -> WITH_FRIEND_USERS.add(entry.getValue());
+                case WITH_INCOME_REQUEST -> WITH_INCOME_REQUEST_USERS.add(entry.getValue());
+                case WITH_OUTCOME_REQUEST -> WITH_OUTCOME_REQUEST_USERS.add(entry.getValue());
+            }
+        }
+    }
+
 }
