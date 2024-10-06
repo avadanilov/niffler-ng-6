@@ -3,6 +3,7 @@ package guru.qa.niffler.test.web;
 import guru.qa.niffler.config.Config;
 import guru.qa.niffler.jupiter.extension.BrowserExtension;
 import guru.qa.niffler.jupiter.extension.UsersQueueExtension;
+import guru.qa.niffler.page.AllPeoplePage;
 import guru.qa.niffler.page.FriendsPage;
 import guru.qa.niffler.page.LoginPage;
 import guru.qa.niffler.page.MainPage;
@@ -64,6 +65,15 @@ public class FriendsWebTest {
 
     @Test
     @ExtendWith(UsersQueueExtension.class)
-    void outcomeInvitationBePresentInAllPeoplesTable(@UserType(WITH_OUTCOME_REQUEST) StaticUser user) {}
+    void outcomeInvitationBePresentInAllPeoplesTable(@UserType(WITH_OUTCOME_REQUEST) StaticUser user) {
+        MainPage mainPage =
+                open(CFG.frontUrl(), LoginPage.class)
+                        .login(user.username(), user.password());
+        mainPage.checkPageLoaded();
+        AllPeoplePage allPeoplePage =
+                open(CFG.frontUrl() + "people/all", AllPeoplePage.class);
+        allPeoplePage.getTableItemWithName(user.outcome())
+                .should(text("Waiting..."));
+    }
 
 }
