@@ -28,7 +28,8 @@ public class FriendsWebTest {
         mainPage.checkPageLoaded();
         FriendsPage friendsPage =
                 open(CFG.frontUrl() + "people/friends", FriendsPage.class);
-        friendsPage.getFriendsNames().should(itemWithText(user.friend()));
+        friendsPage.getFriendsNames()
+                .should(itemWithText(user.friend()));
     }
 
 
@@ -41,14 +42,26 @@ public class FriendsWebTest {
         mainPage.checkPageLoaded();
         FriendsPage friendsPage =
                 open(CFG.frontUrl() + "people/friends", FriendsPage.class);
-        friendsPage.getFriendsNames().should(empty);
-        friendsPage.getEmptyListPanel().should(text("There are no users yet"));
+        friendsPage.getFriendsNames()
+                .should(empty);
+        friendsPage.getEmptyListPanel()
+                .should(text("There are no users yet"));
     }
 
 
     @Test
     @ExtendWith(UsersQueueExtension.class)
-    void incomeInvitationBePresentInFriendsTable(@UserType(WITH_INCOME_REQUEST) StaticUser user) {}
+    void incomeInvitationBePresentInFriendsTable(@UserType(WITH_INCOME_REQUEST) StaticUser user) {
+        MainPage mainPage =
+                open(CFG.frontUrl(), LoginPage.class)
+                        .login(user.username(), user.password());
+        mainPage.checkPageLoaded();
+        FriendsPage friendsPage =
+                open(CFG.frontUrl() + "people/friends", FriendsPage.class);
+        friendsPage.getRequestNames()
+                .should(itemWithText(user.income()));
+    }
+
     @Test
     @ExtendWith(UsersQueueExtension.class)
     void outcomeInvitationBePresentInAllPeoplesTable(@UserType(WITH_OUTCOME_REQUEST) StaticUser user) {}
