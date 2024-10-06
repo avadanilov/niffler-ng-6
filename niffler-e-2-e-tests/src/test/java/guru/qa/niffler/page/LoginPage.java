@@ -15,15 +15,10 @@ public class LoginPage {
     private final SelenideElement errorLoginMessage = $(".form__error-container");
 
     public MainPage login(String username, String password) {
-        inputAndSubmitLoginAndPassword(username, password);
-        return new MainPage();
-    }
-
-    public LoginPage inputAndSubmitLoginAndPassword(String username, String password) {
         usernameInput.setValue(username);
         passwordInput.setValue(password);
         submitButton.click();
-        return this;
+        return new MainPage();
     }
 
     public void checkErrorMessageIsPresent(String messageText) {

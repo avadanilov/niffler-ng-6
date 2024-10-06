@@ -27,8 +27,8 @@ public class LoginPageTest {
         String username = "wrongCred";
         String password = "12345";
         Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .inputAndSubmitLoginAndPassword(username, password)
-                .checkErrorMessageIsPresent(ERROR_MESSAGE_TEXT);
+                .login(username, password);
+        new LoginPage().checkErrorMessageIsPresent(ERROR_MESSAGE_TEXT);
     }
 
     @Test
@@ -36,7 +36,7 @@ public class LoginPageTest {
         String username = "test";
         String password = "wrongPassword";
         Selenide.open(CFG.frontUrl(), LoginPage.class)
-                .inputAndSubmitLoginAndPassword(username, password)
-                .checkErrorMessageIsPresent(ERROR_MESSAGE_TEXT);
+                .login(username, password);
+        new LoginPage().checkErrorMessageIsPresent(ERROR_MESSAGE_TEXT);
     }
 }
