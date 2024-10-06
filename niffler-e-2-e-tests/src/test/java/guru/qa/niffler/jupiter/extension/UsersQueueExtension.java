@@ -45,7 +45,7 @@ public class UsersQueueExtension implements
             Optional<StaticUser> user = Optional.empty();
             StopWatch sw = StopWatch.createStarted();
             while (user.isEmpty() && sw.getTime(TimeUnit.SECONDS) < 30) {
-                user = getUserByType(userType);
+                user = Optional.ofNullable(getUserByType(userType));
             }
             Allure.getLifecycle().updateTestCase(testCase ->
                     testCase.setStart(new Date().getTime())
@@ -103,14 +103,15 @@ public class UsersQueueExtension implements
                 )).put(userType, u);
     }
 
-    private static Optional<StaticUser> getUserByType(UserType userType) {
+    private static StaticUser getUserByType(UserType userType) {
         return switch (userType.value()) {
-            case EMPTY -> Optional.ofNullable(EMPTY_USERS.poll());
-            case WITH_FRIEND -> Optional.ofNullable(WITH_FRIEND_USERS.poll());
-            case WITH_INCOME_REQUEST -> Optional.ofNullable(WITH_INCOME_REQUEST_USERS.poll());
-            case WITH_OUTCOME_REQUEST -> Optional.ofNullable(WITH_OUTCOME_REQUEST_USERS.poll());
+            case EMPTY -> EMPTY_USERS.poll();
+            case WITH_FRIEND -> WITH_FRIEND_USERS.poll();
+            case WITH_INCOME_REQUEST -> WITH_INCOME_REQUEST_USERS.poll();
+            case WITH_OUTCOME_REQUEST -> WITH_OUTCOME_REQUEST_USERS.poll();
         };
     }
+
 
     private static void returnUserToQueue(ExtensionContext context) {
         Map<UserType, StaticUser> map = context.getStore(NAMESPACE).get(
